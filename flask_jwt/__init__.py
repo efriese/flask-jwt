@@ -27,7 +27,7 @@ current_user = LocalProxy(lambda: getattr(_request_ctx_stack.top, 'current_user'
 _jwt = LocalProxy(lambda: current_app.extensions['jwt'])
 
 
-def _get_serializer():
+def get_serializer():
     expires_in = current_app.config['JWT_EXPIRATION_DELTA']
     if isinstance(expires_in, timedelta):
         expires_in = int(expires_in.total_seconds())
@@ -47,13 +47,13 @@ def _default_payload_handler(user):
 
 def _default_encode_handler(payload):
     """Return the encoded payload."""
-    return _get_serializer().dumps(payload).decode('utf-8')
+    return get_serializer().dumps(payload).decode('utf-8')
 
 
 def _default_decode_handler(token):
     """Return the decoded token."""
     try:
-        result = _get_serializer().loads(token)
+        result = get_serializer().loads(token)
     except SignatureExpired:
         if current_app.config['JWT_VERIFY_EXPIRATION']:
             raise
